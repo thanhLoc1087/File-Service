@@ -1,6 +1,8 @@
 package com.unicore.file_service.dto;
 
-public class MessageDTO {
+import java.io.Serializable;
+
+public class MessageDTO implements Serializable {
     private String message;
 
     public MessageDTO(String message) {

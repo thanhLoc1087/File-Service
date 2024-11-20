@@ -38,6 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 
+
 @Controller
 public class HomepageController {
     private static HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -148,7 +149,7 @@ public class HomepageController {
         return responseList;
     }
     
-    @DeleteMapping("/deletefile/${fileId}")
+    @DeleteMapping("/deletefile/{fileId}")
     public @ResponseBody MessageDTO deleteFile(@PathVariable String fileId) throws IOException {
         Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
 
@@ -160,4 +161,22 @@ public class HomepageController {
 
         return new MessageDTO("File " + fileId + " has been deleted.");
     }
+
+    @GetMapping("/createfolder/{folderName}")
+    public @ResponseBody MessageDTO createFolder(@PathVariable String folderName) throws IOException {
+        Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
+
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, cred)
+            .setApplicationName("Unicore")
+            .build();
+
+        File file = new File();
+        file.setName(folderName);
+        file.setMimeType("application/vnd.google-apps.folder");
+
+        drive.files().create(file).execute();
+
+        return new MessageDTO("Folder has been created successfully.");
+    }
+    
 }
