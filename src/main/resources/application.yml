@@ -1,0 +1,8 @@
+spring:
+    application:
+        name: file-service
+
+google:
+    secret.key.path: classpath:keys/client_secret_gd.json
+    oauth.callback.uri: http://192.168.1.106.nip.io/auth
+    credentials.folder.path: file:D:\\Download
