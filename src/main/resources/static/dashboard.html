@@ -60,7 +60,7 @@
                     console.dir(data);
                     var fileHTML = "";
                     for (file of data) {
-                        fileHTML += '<li class="list-group-item"><img src="' + file.thumbnailLink + '">' + file.name + '</li>';
+                fileHTML += '<li class="list-group-item"><img src="' + file.thumbnailLink + '">' + file.name + '<button onclick="deleteFile(\'' + file.id + '\')">Delete</button></li>';
                     }
 
                     console.log(fileHTML);
@@ -71,6 +71,15 @@
                 });
             });
         });
+
+        function deleteFile(fileId) {
+            $.ajax({
+                url: '/deletefile/' + id,
+                method: 'DELETE'
+            }).done(function() {
+                alert('File has been deleted. Please refresh the list.')
+            })
+        }
     </script>
 </body>
 </html>

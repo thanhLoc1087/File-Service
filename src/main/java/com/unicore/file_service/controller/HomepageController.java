@@ -9,7 +9,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -28,6 +30,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.unicore.file_service.dto.FileItemDTO;
+import com.unicore.file_service.dto.MessageDTO;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -145,4 +148,16 @@ public class HomepageController {
         return responseList;
     }
     
+    @DeleteMapping("/deletefile/${fileId}")
+    public @ResponseBody MessageDTO deleteFile(@PathVariable String fileId) throws IOException {
+        Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
+
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, cred)
+            .setApplicationName("Unicore")
+            .build();
+        
+        drive.files().delete(fileId).execute();
+
+        return new MessageDTO("File " + fileId + " has been deleted.");
+    }
 }
