@@ -4,11 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="webjars/jquery/3.7.1/jquery.min.js"></script>
-    <script src="webjars/bootstrap/5.3.3/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="webjars/bootstrap//css/boostrap.min.css">
+    <script src="webjars/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="webjars/bootstrap/5.3.3/css/bootstrap.min.css">
     <title>Unicore Test Google API Dashboard</title>
 </head>
 <body>
     <div class="text-center">YOU'RE SIGNED IN!</div>
+
+    <div id="pages">
+        <div class="btn-group" role="group">
+            <button data-bs-toggle="collapse" data-bs-target="#uploadFile" class="btn btn-secondary">
+                Upload File
+            </button>
+            <button data-bs-toggle="collapse" data-bs-target="#fileList" class="btn btn-secondary">
+                File list
+            </button>
+        </div>
+        <div class="collapse" id="uploadFile">
+            <div class="card card-body" id="simpleUpload">
+                Click following button to upload server side file.
+                <button class="btn btn-secondary">Click to upload File</button>
+            </div>
+        </div>
+        <div class="collapse" id="fileList">
+            <div class="card card-body">
+                To list files press refresh button
+                <button class="btn btn-primary" id="#refreshFileButton">Refresh</button>
+                <ul class="list-group" id="fileListContainer">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#simpleUpload').click(function () {
+                $.ajax({
+                    url: '/create',
+                    type: 'GET',
+                    success: function (response) {
+                        alert('File uploaded successfully: ' + response);
+                    },
+                    error: function (xhr, status, error) {
+                        alert('An error occurred: ' + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

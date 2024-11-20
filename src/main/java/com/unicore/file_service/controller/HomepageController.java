@@ -15,18 +15,19 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.FileContent;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-
 
 
 @Controller
@@ -95,4 +96,25 @@ public class HomepageController {
         flow.createAndStoreCredential(response, USER_IDENTIFIER_KEY);
     }
     
+    @GetMapping("/create")
+    public void createFile(HttpServletResponse response) throws IOException {
+        Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
+
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, cred)
+            .setApplicationName("Unicore")
+            .build();
+
+        File file = new File();
+        file.setName("site-logo.png");
+
+        // add file path
+        FileContent content = new FileContent("image/png", new java.io.File("C:/Users/ADMIN/Downloads/site-logo.png"));
+        File uploadedFile = drive.files().create(file, content).setFields("id").execute();
+
+        String fileRef = String.format("{file_id: '%s'}", uploadedFile.getId());
+
+        response.getWriter().write(fileRef);
+    }
+    
+
 }
