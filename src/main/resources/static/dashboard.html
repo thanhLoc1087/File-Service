@@ -29,7 +29,7 @@
         <div class="collapse" id="fileList">
             <div class="card card-body">
                 To list files press refresh button
-                <button class="btn btn-primary" id="#refreshFileButton">Refresh</button>
+                <button class="btn btn-primary" id="refreshFileButton">Refresh</button>
                 <ul class="list-group" id="fileListContainer">
 
                 </ul>
@@ -49,6 +49,25 @@
                     error: function (xhr, status, error) {
                         alert('An error occurred: ' + xhr.responseText);
                     }
+                });
+            });
+
+            $("#refreshFileButton").click(function() {
+                $.ajax({
+                    url: '/listfiles',
+                    type: 'GET'
+                }).done(function(data) {
+                    console.dir(data);
+                    var fileHTML = "";
+                    for (file of data) {
+                        fileHTML += '<li class="list-group-item"><img src="' + file.thumbnailLink + '">' + file.name + '</li>';
+                    }
+
+                    console.log(fileHTML);
+                    $("#fileListContainer").html(fileHTML);
+                }).fail(function (xhr, status, error) {
+                    console.error("Error fetching files:", error);
+                    alert("Failed to fetch files. Please try again.");
                 });
             });
         });

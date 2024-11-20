@@ -2,6 +2,7 @@ package com.unicore.file_service.controller;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -24,10 +26,13 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
+import com.unicore.file_service.dto.FileItemDTO;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 
 
 @Controller
@@ -116,5 +121,28 @@ public class HomepageController {
         response.getWriter().write(fileRef);
     }
     
+    @GetMapping(value={"/listfiles"}, produces={"application/json"})
+    public @ResponseBody List<FileItemDTO> listFiles() throws IOException {
+        Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
 
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, cred)
+            .setApplicationName("Unicore")
+            .build();
+
+        List<FileItemDTO> responseList = new ArrayList<>();
+        FileList fileList = drive.files().list().setFields("files(id,name,thumbnailLink)").execute();
+
+        for (File file : fileList.getFiles()) {
+            FileItemDTO item = FileItemDTO.builder()
+                .id(file.getId())
+                .name(file.getName())
+                .thumbnailLink(file.getThumbnailLink())
+                .build();
+            
+            responseList.add(item);
+        }
+
+        return responseList;
+    }
+    
 }
