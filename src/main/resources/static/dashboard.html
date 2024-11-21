@@ -19,7 +19,7 @@
             <button data-bs-toggle="collapse" data-bs-target="#fileList" class="btn btn-secondary">
                 File list
             </button>
-            <button data-bs-toggle="collapse" data-bs-target="#createFolder" class="btn btn-secondary">
+            <button data-bs-toggle="collapse" data-bs-target="#folder" class="btn btn-secondary">
                 Create Folder
             </button>
         </div>
@@ -44,10 +44,15 @@
         </div>
 
         <!-- Create folder -->
-        <div class="collapse" id="createFolder">
+        <div class="collapse" id="folder">
             <div class="card card-body">
                 Click to create a folder
-                <button class="btn btn-secondary">Create Folder</button>
+                <button class="btn btn-secondary" id="createFolder">Create Folder</button>
+            </div>
+
+            <div class="card card-body">
+                Click to upload file to folder
+                <button class="btn btn-secondary" id="uploadFileInFolder">Create Folder</button>
             </div>
         </div>
     </div>
@@ -75,7 +80,12 @@
                     console.dir(data);
                     var fileHTML = "";
                     for (file of data) {
-                        fileHTML += '<li class="list-group-item"><img src="' + file.thumbnailLink + '">' + file.name + '<button onclick="deleteFile(\'' + file.id + '\')">Delete</button></li>';
+                        fileHTML += 
+                            '<li class="list-group-item"><img src="' + file.thumbnailLink + '">' 
+                            + file.name 
+                            + ' (FiledID: ' + file.id + ')'
+                            + '<button onclick="makePublic(\'' + file.id + '\')">Make public</button></li>';
+                            + '<button onclick="deleteFile(\'' + file.id + '\')">Delete</button></li>';
                     }
 
                     console.log(fileHTML);
@@ -98,6 +108,18 @@
                     alert("Failed to create folder. Please try again.");
                 });
             });
+
+            $("#uploadFileInFolder").click(function() {
+                $.ajax({
+                    url: '/uploadinfolder',
+                    type: 'GET'
+                }).done(function(data) {
+                    console.dir(data);
+                }).fail(function (xhr, status, error) {
+                    console.error("Error creating folder:", error);
+                    alert("Failed to create folder. Please try again.");
+                });
+            });
         });
 
         function deleteFile(fileId) {
@@ -106,6 +128,15 @@
                 method: 'DELETE'
             }).done(function() {
                 alert('File has been deleted. Please refresh the list.')
+            })
+        }
+
+        function deleteFile(fileId) {
+            $.ajax({
+                url: '/makepublic/' + id,
+                method: 'POST'
+            }).done(function() {
+                alert('File can now be viewed by anyone on the Internet.')
             })
         }
     </script>

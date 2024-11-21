@@ -3,6 +3,7 @@ package com.unicore.file_service.controller;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -29,12 +31,14 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.Permission;
 import com.unicore.file_service.dto.FileItemDTO;
 import com.unicore.file_service.dto.MessageDTO;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 
 
 
@@ -177,6 +181,45 @@ public class HomepageController {
         drive.files().create(file).execute();
 
         return new MessageDTO("Folder has been created successfully.");
+    }
+    
+    
+    @GetMapping("/upliadinfolder")
+    public void uploadInFolder(HttpServletResponse response) throws IOException {
+        Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
+
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, cred)
+            .setApplicationName("Unicore")
+            .build();
+
+        File file = new File();
+        file.setName("test.png");
+        file.setParents(Arrays.asList("FOLDER_ID_GAH"));
+
+        // add file path
+        FileContent content = new FileContent("image/png", new java.io.File("C:/Users/ADMIN/Downloads/test.png"));
+        File uploadedFile = drive.files().create(file, content).setFields("id").execute();
+
+        String fileRef = String.format("{file_id: '%s'}", uploadedFile.getId());
+
+        response.getWriter().write(fileRef);
+    }
+
+    @PostMapping(value={"/makepublic/{fileid}"}, produces={"application/json"})
+    public MessageDTO makePublic(@PathVariable String fileid) throws IOException {
+        Credential cred = flow.loadCredential(USER_IDENTIFIER_KEY);
+
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, cred)
+            .setApplicationName("Unicore")
+            .build();
+        
+        Permission permission = new Permission();
+        permission.setType("anyone");
+        permission.setRole("reader");
+
+        drive.permissions().create(fileid, permission).execute();
+
+        return new MessageDTO("Public file successfully.");
     }
     
 }
